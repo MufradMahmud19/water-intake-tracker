@@ -4,7 +4,7 @@ A serverless web application built with **Java** and **AWS** to help users track
 
 ## Live Demo
 **Access Links:**
-- **Homepage:** `http://water-tracker-mufrad.s3.amazonaws.com/index.html`
+- **Homepage:** ![`http://water-tracker-mufrad.s3.amazonaws.com/index.html`](https://water-tracker-mufrad.s3.amazonaws.com/index.html)
 
 ## 📖 Motivation
 
@@ -18,7 +18,7 @@ Keeping these in mind, I created this simple, accessible tool to provide gentle 
 
 ## 🏗️ Architecture
 
-![Architecture Diagram](water-tracker-lowchart.png)
+![Architecture Diagram](water-tracker-flowchart.png)
 
 ### **Flow Explanation:**
 1. **User** accesses the S3-hosted website on their phone/computer
