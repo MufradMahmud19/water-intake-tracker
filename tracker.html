@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Water Intake Tracker</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #0077b6;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: clamp(1.8rem, 5vw, 2.2rem);
+            line-height: 1.3;
+        }
+        
+        .step {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            background: #f8fdff;
+            border: 2px solid #e0f7fa;
+        }
+        
+        .step h3 {
+            color: #0077b6;
+            margin-bottom: 15px;
+            font-size: clamp(1.2rem, 3vw, 1.4rem);
+        }
+        
+        .options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .option-btn {
+            padding: 14px 25px;
+            border: 2px solid #4fc3f7;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .option-btn.selected {
+            background: #4fc3f7;
+            color: white;
+            border-color: #0288d1;
+            transform: scale(1.02);
+        }
+        
+        .input-field {
+            margin: 20px 0;
+        }
+        
+        .input-field label {
+            display: block;
+            margin-bottom: 10px;
+            color: #0077b6;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .input-field input, .input-field select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #4fc3f7;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            background: white;
+        }
+        
+        .input-field input:focus, .input-field select:focus {
+            outline: none;
+            border-color: #0288d1;
+            box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.1);
+        }
+        
+        .submit-btn {
+            background: #00b894;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            background: #00a085;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            text-align: center;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 15px;
+            background: #e8f5e9;
+            border-left: 5px solid #00b894;
+        }
+        
+        .result.hidden {
+            display: none;
+        }
+        
+        #resultMessage {
+            font-size: 1.3rem;
+            line-height: 1.5;
+            margin: 20px 0;
+            color: #2d3436;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #dfe6e9;
+        }
+        
+        .return-btn {
+            background: #636e72;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: block;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .return-btn:hover {
+            background: #4a5357;
+            transform: translateY(-2px);
+        }
+        
+        .track-again-btn {
+            background: #0984e3;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .track-again-btn:hover {
+            background: #0770c4;
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 25px;
+            color: #0077b6;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            color: #d63031;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            border-left: 4px solid #d63031;
+            font-size: 1.1rem;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+                margin: 0;
+            }
+            
+            .step {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 12px;
+            }
+            
+            .step h3 {
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+            }
+            
+            .options {
+                gap: 10px;
+            }
+            
+            .option-btn {
+                padding: 12px 15px;
+                font-size: 1rem;
+                min-width: 110px;
+                border-radius: 8px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+            
+            .input-field {
+                margin: 15px 0;
+            }
+            
+            .input-field label {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+            
+            .input-field input, .input-field select {
+                padding: 12px;
+                font-size: 1rem;
+                border-radius: 8px;
+            }
+            
+            .submit-btn {
+                padding: 15px;
+                font-size: 1.1rem;
+                margin-top: 15px;
+                border-radius: 8px;
+            }
+            
+            .result {
+                padding: 20px;
+                margin-top: 15px;
+                border-radius: 12px;
+            }
+            
+            #resultMessage {
+                font-size: 1.2rem;
+                padding: 12px;
+                margin: 15px 0;
+            }
+            
+            .return-btn, .track-again-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+                margin-top: 10px;
+                border-radius: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            
+            .step {
+                padding: 12px;
+                margin-bottom: 15px;
+                border-radius: 10px;
+            }
+            
+            .step h3 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .options {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .option-btn {
+                width: 100%;
+                min-width: auto;
+                padding: 14px 10px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+                padding: 0 5px;
+            }
+            
+            .input-field {
+                margin: 12px 0;
+            }
+            
+            .input-field label {
+                font-size: 1rem;
+            }
+            
+            .input-field input, .input-field select {
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .submit-btn {
+                padding: 14px;
+                font-size: 1.1rem;
+                margin-top: 10px;
+            }
+            
+            .result {
+                padding: 15px;
+                border-radius: 10px;
+            }
+            
+            #resultMessage {
+                font-size: 1.1rem;
+                padding: 10px;
+                margin: 12px 0;
+            }
+            
+            .loading {
+                padding: 20px;
+                font-size: 1.1rem;
+            }
+            
+            .error-message {
+                padding: 12px;
+                font-size: 1rem;
+                margin: 10px 0;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .container {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .option-btn {
+                padding: 12px 8px;
+                font-size: 1rem;
+            }
+            
+            .step h3 {
+                font-size: 1.1rem;
+            }
+            
+            .input-field label {
+                font-size: 0.95rem;
+            }
+            
+            .input-field input, .input-field select {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            #resultMessage {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .option-btn, .submit-btn, .return-btn, .track-again-btn {
+                min-height: 50px;
+            }
+            
+            .option-btn:active, .submit-btn:active, .return-btn:active, .track-again-btn:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* Animation for step transitions */
+        .step {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Track Your Water Intake 🚰</h1>
+        
+        <div id="step1" class="step">
+            <h3>Step 1: Select Your Gender</h3>
+            <div class="options">
+                <button class="option-btn" onclick="selectGender('male')"> Male ♂ </button>
+                <button class="option-btn" onclick="selectGender('female')"> Female ♀ </button>
+            </div>
+        </div>
+        
+        <div id="step2" class="step hidden">
+            <h3>Step 2: How do you measure water?</h3>
+            <div class="options">
+                <button class="option-btn" onclick="selectMode('cups')"> Cups ⛾ </button>
+                <button class="option-btn" onclick="selectMode('bottle')">Bottle 🫙 </button>
+            </div>
+        </div>
+        
+        <div id="step3-cups" class="step hidden">
+            <h3>Step 3: Enter Number of Cups</h3>
+            <div class="input-field">
+                <label>How many cups did you drink today?</label>
+                <input type="number" id="cupsInput" min="1" max="50" placeholder="e.g., 8" value="15">
+            </div>
+        </div>
+        
+        <div id="step3-bottle" class="step hidden">
+            <h3>Step 3: Details about drinking water with bottle</h3>
+            <div class="input-field">
+                <label>How much water did you drink? (in liters)</label>
+                <input type="number" id="litersInput" step="0.1" min="0.1" max="10" placeholder="e.g., 2.5" value="2.5">
+            </div>
+        </div>
+        
+        <button id="submitBtn" class="submit-btn hidden" onclick="submitData()">Submit</button>
+        
+        <div id="loading" class="loading hidden">
+            ⏳ Sending data to server...
+        </div>
+        
+        <div id="errorDisplay" class="error-message hidden"></div>
+        
+        <div id="result" class="result hidden">
+            <h2>Feedback</h2>
+            <p id="resultMessage"></p>
+            <button class="return-btn" onclick="goHome()">← Return to Homepage</button>
+            <button class="track-again-btn" onclick="trackAgain()">Track Another Day</button>
+        </div>
+    </div>
+
+    <script>
+        // UPDATE API URL if needed:
+        const API_URL = 'https://osk7w2qwe0.execute-api.us-east-1.amazonaws.com/prod/submit';
+        
+        let selectedGender = '';
+        let selectedMode = '';
+        
+        function selectGender(gender) {
+            selectedGender = gender;
+            document.querySelectorAll('#step1 .option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            document.getElementById('step2').classList.remove('hidden');
+            hideError();
+            
+            // Scroll to next step on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('step2').scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        }
+        
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('#step2 .option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            if (mode === 'cups') {
+                document.getElementById('step3-cups').classList.remove('hidden');
+                document.getElementById('step3-bottle').classList.add('hidden');
+            } else {
+                document.getElementById('step3-bottle').classList.remove('hidden');
+                document.getElementById('step3-cups').classList.add('hidden');
+            }
+            
+            document.getElementById('submitBtn').classList.remove('hidden');
+            hideError();
+            
+            // Scroll to input step on mobile
+            if (window.innerWidth <= 768) {
+                if (mode === 'cups') {
+                    document.getElementById('step3-cups').scrollIntoView({behavior: 'smooth', block: 'center'});
+                } else {
+                    document.getElementById('step3-bottle').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorDisplay');
+            errorDiv.textContent = 'Error: ' + message;
+            errorDiv.classList.remove('hidden');
+            
+            // Scroll to error on mobile
+            if (window.innerWidth <= 768) {
+                errorDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        }
+        
+        function hideError() {
+            document.getElementById('errorDisplay').classList.add('hidden');
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = true;
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('submitBtn').disabled = false;
+        }
+        
+        async function submitData() {
+            let intake;
+            let requestBody = {
+                gender: selectedGender,
+                mode: selectedMode
+            };
+            
+            // Validating inputs
+            if (selectedMode === 'cups') {
+                intake = parseFloat(document.getElementById('cupsInput').value);
+                if (!intake || intake <= 0 || intake > 50) {
+                    showError('Please enter a valid number of cups (1-50)');
+                    return;
+                }
+                requestBody.intake = intake;
+            } else {
+                intake = parseFloat(document.getElementById('litersInput').value);
+                if (!intake || intake <= 0 || intake > 10) {
+                    showError('Please enter a valid amount in liters (0.1-10)');
+                    return;
+                }
+                requestBody.intake = intake;
+            }
+            
+            // Showing loading state
+            showLoading();
+            hideError();
+            
+            console.log('Sending request to:', API_URL);
+            console.log('Request body:', requestBody);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody),
+                    mode: 'cors'
+                });
+                
+                console.log('Response received. Status:', response.status);
+                
+                if (!response.ok) {
+                    let errorText = 'Server error';
+                    try {
+                        errorText = await response.text();
+                    } catch (e) {
+                        console.log('Could not read error response');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Showing success result
+                document.getElementById('resultMessage').textContent = data.message;
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('errorDisplay').classList.add('hidden');
+                
+                // Scroll to result on mobile
+                if (window.innerWidth <= 768) {
+                    document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+                
+            } catch (error) {
+                console.error('Full error details:', error);
+                
+                let userMessage = error.message;
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    userMessage = 'Cannot connect to server. Please check your internet connection and try again.';
+                }
+                
+                showError(userMessage);
+                
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function goHome() {
+            // Using absolute URL to ensure it works from any path
+            window.location.href = 'index.html';
+        }
+        
+        function trackAgain() {
+            // Reset everything
+            selectedGender = '';
+            selectedMode = '';
+            
+            // Reset UI
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3-cups').classList.add('hidden');
+            document.getElementById('step3-bottle').classList.add('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('errorDisplay').classList.add('hidden');
+            document.getElementById('loading').classList.add('hidden');
+            
+            // Clearing inputs
+            document.getElementById('cupsInput').value = '15';
+            document.getElementById('litersInput').value = '2.5';
+            
+            // Scroll to top
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        
+        // Handling mobile keyboard
+        function handleMobileInput() {
+            if (window.innerWidth <= 768) {
+                // Preventing zoom on input focus
+                document.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('focus', () => {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+                    });
+                    
+                    input.addEventListener('blur', () => {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes');
+                    });
+                });
+            }
+        }
+        
+        // Initializing on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Water Tracker loaded');
+            console.log('API URL:', API_URL);
+            handleMobileInput();
+            
+            // Adding touch feedback for mobile
+            document.querySelectorAll('.option-btn, .submit-btn, .return-btn, .track-again-btn').forEach(btn => {
+                btn.addEventListener('touchstart', function() {
+                    this.style.opacity = '0.8';
+                });
+                
+                btn.addEventListener('touchend', function() {
+                    this.style.opacity = '1';
+                });
+            });
+        });
+        
+        // Handling orientation change
+        window.addEventListener('orientationchange', function() {
+            // Reloading viewport settings on rotation
+            setTimeout(() => {
+                document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
