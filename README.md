@@ -18,13 +18,14 @@ Keeping these in mind, I created this simple, accessible tool to provide gentle 
 
 ## 🏗️ Architecture
 
-┌─────────────────┐     ┌─────────────────┐     ┌────────────────┐
-│   Frontend      │───▶│   API Gateway    │───▶│   AWS Lambda   │
-│   (S3 Hosted)   │◀───│   (REST API)     │◀───│   (Java 17)    │
-│   HTML/CSS/JS   │     │                 │     │   Logic Engine │
-└─────────────────┘     └─────────────────┘     └────────────────┘
+![Architecture Diagram](water-tracker-lowchart.png)
 
-
+### **Flow Explanation:**
+1. **User** accesses the S3-hosted website on their phone/computer
+2. **Frontend** (HTML/JS) collects user input and sends to API Gateway
+3. **API Gateway** routes the request to AWS Lambda
+4. **AWS Lambda** (Java) processes the logic and returns personalized message
+5. **Response** flows back through API Gateway to the user
 
 ## 🛠️ Technology Stack
 
